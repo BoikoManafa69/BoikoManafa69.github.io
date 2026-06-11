@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Куиз: Столици на Европа</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #f8fafc);
+      color: #172033;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 780px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 55px rgba(15, 23, 42, 0.16);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 42px);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #64748b;
+      font-size: 16px;
+    }
+
+    .start-screen, .final-screen {
+      text-align: center;
+      padding: 24px 8px 10px;
+    }
+
+    .option-box {
+      margin: 28px auto;
+      max-width: 520px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: #2563eb;
+    }
+
+    .small {
+      display: block;
+      margin-top: 8px;
+      color: #64748b;
+      font-weight: normal;
+      font-size: 14px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .score {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .good { color: #15803d; }
+    .bad { color: #b91c1c; }
+
+    .progress-bg {
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.25s;
+    }
+
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 22px;
+      background: #f8fafc;
+    }
+
+    .number {
+      font-weight: bold;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      font-size: clamp(22px, 4vw, 30px);
+      margin: 0 0 20px;
+      line-height: 1.25;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+      border-radius: 14px;
+      font-weight: bold;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .answer {
+      background: white;
+      border: 2px solid #e2e8f0;
+      min-height: 58px;
+      padding: 14px;
+      text-align: left;
+      color: #172033;
+    }
+
+    .answer:hover:not(:disabled) {
+      border-color: #60a5fa;
+    }
+
+    .answer.correct {
+      background: #dcfce7;
+      border-color: #16a34a;
+      color: #14532d;
+    }
+
+    .answer.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #7f1d1d;
+    }
+
+    .answer:disabled {
+      cursor: default;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .message {
+      min-height: 24px;
+      font-weight: bold;
+    }
+
+    .primary, .secondary {
+      padding: 13px 20px;
+      font-size: 16px;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #172033;
+    }
+
+    .hidden { display: none; }
+
+    .final-screen h2 {
+      font-size: 36px;
+      margin: 0 0 10px;
+    }
+
+    .final-screen p {
+      color: #64748b;
+      font-size: 19px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .app { padding: 20px; }
+      .answers { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="startScreen" class="start-screen">
+      <h1>Куиз: Столици на Европа</h1>
+      <p class="subtitle">Познай столицата на всяка европейска държава.</p>
+
+      <div id="continueBox" class="option-box hidden">
+        Имаш запазена игра.
+        <span class="small">Можеш да продължиш оттам, докъдето си стигнал, или да започнеш нова игра.</span>
+        <div class="button-row">
+          <button id="continueBtn" class="primary" type="button">Продължи</button>
+          <button id="newGameBtn" class="secondary" type="button">Нова игра</button>
+        </div>
+      </div>
+
+      <div class="option-box">
+        <label>
+          <input id="includeExtra" type="checkbox" />
+          Включи допълнителните държави
+        </label>
+        <span class="small">Добавя Косово, Русия, Турция, Армения, Азербайджан, Грузия и Казахстан.</span>
+      </div>
+
+      <button id="startBtn" class="primary" type="button">Старт</button>
+    </section>
+
+    <section id="quizScreen" class="hidden">
+      <div class="top">
+        <div>
+          <h1>Столици на Европа</h1>
+          <p class="subtitle">Само въпроси от типа: „Каква е столицата на...?“</p>
+        </div>
+        <div class="score">
+          <div class="badge good">Верни: <span id="correctCount">0</span></div>
+          <div class="badge bad">Грешни: <span id="wrongCount">0</span></div>
+        </div>
+      </div>
+
+      <div class="progress-bg"><div id="progress" class="progress"></div></div>
+
+      <div class="card">
+        <div id="questionNumber" class="number"></div>
+        <h2 id="questionText" class="question"></h2>
+        <div id="answers" class="answers"></div>
+
+        <div class="controls">
+          <div id="message" class="message"></div>
+          <div>
+            <button id="backBtn" class="secondary" type="button">Назад</button>
+            <button id="nextBtn" class="primary hidden" type="button">Следващ</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="finalScreen" class="final-screen hidden">
+      <h2>Готово!</h2>
+      <p id="finalText"></p>
+      <button id="playAgainBtn" class="primary" type="button">Играй пак</button>
+    </section>
+  </main>
+
+  <script>
+    const SAVE_KEY = "europeCapitalsQuizState";
+
+    const coreCountries = [
+      {
+            "country": "Албания",
+            "capital": "Тирана"
+      },
+      {
+            "country": "Андора",
+            "capital": "Андора ла Веля"
+      },
+      {
+            "country": "Австрия",
+            "capital": "Виена"
+      },
+      {
+            "country": "Беларус",
+            "capital": "Минск"
+      },
+      {
+            "country": "Белгия",
+            "capital": "Брюксел"
+      },
+      {
+            "country": "Босна и Херцеговина",
+            "capital": "Сараево"
+      },
+      {
+            "country": "България",
+            "capital": "София"
+      },
+      {
+            "country": "Хърватия",
+            "capital": "Загреб"
+      },
+      {
+            "country": "Кипър",
+            "capital": "Никозия"
+      },
+      {
+            "country": "Чехия",
+            "capital": "Прага"
+      },
+      {
+            "country": "Дания",
+            "capital": "Копенхаген"
+      },
+      {
+            "country": "Естония",
+            "capital": "Талин"
+      },
+      {
+            "country": "Финландия",
+            "capital": "Хелзинки"
+      },
+      {
+            "country": "Франция",
+            "capital": "Париж"
+      },
+      {
+            "country": "Германия",
+            "capital": "Берлин"
+      },
+      {
+            "country": "Гърция",
+            "capital": "Атина"
+      },
+      {
+            "country": "Унгария",
+            "capital": "Будапеща"
+      },
+      {
+            "country": "Исландия",
+            "capital": "Рейкявик"
+      },
+      {
+            "country": "Ирландия",
+            "capital": "Дъблин"
+      },
+      {
+            "country": "Италия",
+            "capital": "Рим"
+      },
+      {
+            "country": "Латвия",
+            "capital": "Рига"
+      },
+      {
+            "country": "Лихтенщайн",
+            "capital": "Вадуц"
+      },
+      {
+            "country": "Литва",
+            "capital": "Вилнюс"
+      },
+      {
+            "country": "Люксембург",
+            "capital": "Люксембург"
+      },
+      {
+            "country": "Малта",
+            "capital": "Валета"
+      },
+      {
+            "country": "Молдова",
+            "capital": "Кишинев"
+      },
+      {
+            "country": "Монако",
+            "capital": "Монако"
+      },
+      {
+            "country": "Черна гора",
+            "capital": "Подгорица"
+      },
+      {
+            "country": "Нидерландия",
+            "capital": "Амстердам"
+      },
+      {
+            "country": "Северна Македония",
+            "capital": "Скопие"
+      },
+      {
+            "country": "Норвегия",
+            "capital": "Осло"
+      },
+      {
+            "country": "Полша",
+            "capital": "Варшава"
+      },
+      {
+            "country": "Португалия",
+            "capital": "Лисабон"
+      },
+      {
+            "country": "Румъния",
+            "capital": "Букурещ"
+      },
+      {
+            "country": "Сан Марино",
+            "capital": "Сан Марино"
+      },
+      {
+            "country": "Сърбия",
+            "capital": "Белград"
+      },
+      {
+            "country": "Словакия",
+            "capital": "Братислава"
+      },
+      {
+            "country": "Словения",
+            "capital": "Любляна"
+      },
+      {
+            "country": "Испания",
+            "capital": "Мадрид"
+      },
+      {
+            "country": "Швеция",
+            "capital": "Стокхолм"
+      },
+      {
+            "country": "Швейцария",
+            "capital": "Берн"
+      },
+      {
+            "country": "Украйна",
+            "capital": "Киев"
+      },
+      {
+            "country": "Обединено кралство",
+            "capital": "Лондон"
+      },
+      {
+            "country": "Ватикан",
+            "capital": "Ватикан"
+      }
+];
+    const extraCountries = [
+      {
+            "country": "Косово",
+            "capital": "Прищина"
+      },
+      {
+            "country": "Русия",
+            "capital": "Москва"
+      },
+      {
+            "country": "Турция",
+            "capital": "Анкара"
+      },
+      {
+            "country": "Армения",
+            "capital": "Ереван"
+      },
+      {
+            "country": "Азербайджан",
+            "capital": "Баку"
+      },
+      {
+            "country": "Грузия",
+            "capital": "Тбилиси"
+      },
+      {
+            "country": "Казахстан",
+            "capital": "Астана"
+      }
+];
+
+    let countries = [];
+    let questions = [];
+    let currentIndex = 0;
+    let correctCount = 0;
+    let wrongCount = 0;
+    let answered = false;
+    let history = [];
+    let answeredQuestions = [];
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const includeExtra = document.getElementById("includeExtra");
+    const startBtn = document.getElementById("startBtn");
+    const continueBox = document.getElementById("continueBox");
+    const continueBtn = document.getElementById("continueBtn");
+    const newGameBtn = document.getElementById("newGameBtn");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+
+    const correctCountEl = document.getElementById("correctCount");
+    const wrongCountEl = document.getElementById("wrongCount");
+    const progressEl = document.getElementById("progress");
+    const questionNumberEl = document.getElementById("questionNumber");
+    const questionTextEl = document.getElementById("questionText");
+    const answersEl = document.getElementById("answers");
+    const messageEl = document.getElementById("message");
+    const finalTextEl = document.getElementById("finalText");
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeOptions(correctCapital) {
+      const wrong = shuffle(
+        countries
+          .map(c => c.capital)
+          .filter(capital => capital !== correctCapital)
+      ).slice(0, 3);
+
+      return shuffle([correctCapital, ...wrong]);
+    }
+
+    function buildQuestions() {
+      return shuffle(countries).map(c => ({
+        country: c.country,
+        correct: c.capital,
+        options: makeOptions(c.capital)
+      }));
+    }
+
+    function saveGame() {
+      if (quizScreen.classList.contains("hidden")) return;
+
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        countries,
+        questions,
+        currentIndex,
+        correctCount,
+        wrongCount,
+        history,
+        answeredQuestions
+      }));
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return false;
+
+      try {
+        const state = JSON.parse(saved);
+
+        countries = state.countries || [];
+        questions = state.questions || [];
+        currentIndex = state.currentIndex || 0;
+        correctCount = state.correctCount || 0;
+        wrongCount = state.wrongCount || 0;
+        history = state.history || [];
+        answeredQuestions = state.answeredQuestions || [];
+
+        if (!questions.length) return false;
+
+        startScreen.classList.add("hidden");
+        finalScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+
+        if (currentIndex >= questions.length) {
+          showFinal();
+        } else {
+          showQuestion();
+        }
+
+        return true;
+      } catch (error) {
+        localStorage.removeItem(SAVE_KEY);
+        return false;
+      }
+    }
+
+    function updateContinueBox() {
+      if (localStorage.getItem(SAVE_KEY)) {
+        continueBox.classList.remove("hidden");
+      } else {
+        continueBox.classList.add("hidden");
+      }
+    }
+
+    function startQuiz() {
+      localStorage.removeItem(SAVE_KEY);
+
+      countries = includeExtra.checked
+        ? [...coreCountries, ...extraCountries]
+        : [...coreCountries];
+
+      questions = buildQuestions();
+      currentIndex = 0;
+      correctCount = 0;
+      wrongCount = 0;
+      answered = false;
+      history = [];
+      answeredQuestions = [];
+
+      startScreen.classList.add("hidden");
+      finalScreen.classList.add("hidden");
+      quizScreen.classList.remove("hidden");
+
+      showQuestion();
+    }
+
+    function updateScore() {
+      correctCountEl.textContent = correctCount;
+      wrongCountEl.textContent = wrongCount;
+      const progress = questions.length === 0 ? 0 : (currentIndex / questions.length) * 100;
+      progressEl.style.width = progress + "%";
+    }
+
+    function showQuestion() {
+      answered = false;
+      messageEl.textContent = "";
+      nextBtn.classList.add("hidden");
+
+      const q = questions[currentIndex];
+
+      questionNumberEl.textContent = `Въпрос ${currentIndex + 1} от ${questions.length}`;
+      questionTextEl.textContent = `Каква е столицата на ${q.country}?`;
+      answersEl.innerHTML = "";
+
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "answer";
+        btn.type = "button";
+        btn.textContent = option;
+        btn.addEventListener("click", () => checkAnswer(btn, option, q.correct));
+        answersEl.appendChild(btn);
+      });
+
+      updateScore();
+      saveGame();
+    }
+
+    function checkAnswer(button, selected, correct) {
+      if (answered) return;
+      answered = true;
+
+      const buttons = [...document.querySelectorAll(".answer")];
+      buttons.forEach(btn => btn.disabled = true);
+
+      if (selected === correct) {
+        button.classList.add("correct");
+        correctCount++;
+        messageEl.textContent = "Правилно!";
+        answeredQuestions.push({ index: currentIndex, wasCorrect: true });
+      } else {
+        button.classList.add("wrong");
+        wrongCount++;
+        messageEl.textContent = `Грешно. Верният отговор е: ${correct}`;
+        answeredQuestions.push({ index: currentIndex, wasCorrect: false });
+        buttons.forEach(btn => {
+          if (btn.textContent === correct) btn.classList.add("correct");
+        });
+      }
+
+      history.push(currentIndex);
+      currentIndex++;
+      updateScore();
+
+      nextBtn.textContent = currentIndex >= questions.length ? "Виж резултата" : "Следващ";
+      nextBtn.classList.remove("hidden");
+      saveGame();
+    }
+
+    function nextQuestion() {
+      if (currentIndex >= questions.length) {
+        showFinal();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function showFinal() {
+      quizScreen.classList.add("hidden");
+      finalScreen.classList.remove("hidden");
+      progressEl.style.width = "100%";
+
+      const total = questions.length;
+      const percent = Math.round((correctCount / total) * 100);
+
+      finalTextEl.textContent = `Ти имаш ${correctCount} верни и ${wrongCount} грешни от ${total} въпроса. Резултат: ${percent}%.`;
+      localStorage.removeItem(SAVE_KEY);
+    }
+
+    function restartQuiz() {
+      localStorage.removeItem(SAVE_KEY);
+      updateContinueBox();
+      startScreen.classList.remove("hidden");
+      quizScreen.classList.add("hidden");
+      finalScreen.classList.add("hidden");
+    }
+
+    startBtn.addEventListener("click", startQuiz);
+    continueBtn.addEventListener("click", loadGame);
+    newGameBtn.addEventListener("click", () => {
+      localStorage.removeItem(SAVE_KEY);
+      updateContinueBox();
+    });
+    backBtn.addEventListener("click", () => {
+      if (history.length === 0) {
+        startScreen.classList.remove("hidden");
+        quizScreen.classList.add("hidden");
+        finalScreen.classList.add("hidden");
+        updateContinueBox();
+        return;
+      }
+
+      const lastAnswer = answeredQuestions.pop();
+      if (lastAnswer) {
+        if (lastAnswer.wasCorrect) correctCount = Math.max(0, correctCount - 1);
+        else wrongCount = Math.max(0, wrongCount - 1);
+      }
+
+      currentIndex = history.pop();
+      showQuestion();
+      saveGame();
+    });
+    nextBtn.addEventListener("click", nextQuestion);
+    playAgainBtn.textContent = "Рестарт";
+    playAgainBtn.addEventListener("click", restartQuiz);
+
+    window.addEventListener("beforeunload", saveGame);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) saveGame();
+    });
+
+    updateContinueBox();
+  </script>
+</body>
+</html>
